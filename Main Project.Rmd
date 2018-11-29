@@ -4,10 +4,12 @@ author: "Alec Lepe, Che Cobb"
 date: "11/28/2018"
 output: 
   html_document:
+    fig_width: 6
+    fig_height: 4
   keep_md: true
 ---
 ### Load Libraries
-```{r setup, include=FALSE}
+```{r setup, include=FALSE, echo=FALSE}
 #install.packages("data.table")
 #install.packages("readxl")
 #install.packages("ggplot2")
@@ -16,7 +18,8 @@ library("data.table")
 library("readxl")
 library("ggplot2")
 library("reshape")
-knitr::opts_chunk$set(fig.width = 10, fig.length=10, fig.asp = 1/3,  message=FALSE)
+knitr::opts_chunk$set(fig.width = 10, fig.length=10, fig.asp = 1/3,  message=TRUE,echo=FALSE)
+#knitr::opts_chunk$set(fig.width=8, fig.height=7)
 ```
 ### Reproducibility: Session Info
 ```{r aeessionInfo}
@@ -50,7 +53,7 @@ barplot(table(casedata[["Attrition"]]), main="Attrition Count",col=c("Green","Re
 table(casedata[["Attrition"]])/nrow(casedata)
 ```
 ### How does age relate to attrition?
-``` {r AttritionCountByAge}
+``` {r AttritionCountByAge,echo=T}
 ID="Age"
 yes=casedata[,sum(Attrition=="Yes"),ID]; colnames(yes)[2]="Yes"
 no=casedata[,sum(Attrition=="No"),ID];   colnames(no)[2]="No"
@@ -192,11 +195,11 @@ temp=merge(temp,as.data.table(temp)[,sum(Count),ID])
 colnames(temp)[ncol(temp)]="Total"
 temp[["Proportion"]]=temp[["Count"]]/temp[["Total"]]
 ggplot(temp,aes(fill=Attrition,y=Proportion,x=eval(as.symbol(ID))))+geom_bar(stat="identity")+xlab(ID)+ggtitle(paste(ID,"vs Attrition"))
+
 ```
 
 Here we see attrition decreasing as years with current manager increases with an outlier at year 14 where we only have 5 total observations.
 ``` {r 14}
 temp[temp[["YearsWithCurrManager"]]==14,]
-
 ```
 
