@@ -64,3 +64,5 @@ temp=as.data.frame(temp)
 colnames(temp)=c(ID,"Attrition","Count")
 temp %>% ggplot(aes(fill=Attrition,y=Count,x=eval(as.symbol(ID))))+geom_bar(stat="identity")+xlab(ID)
 ```
+
+
