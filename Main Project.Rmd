@@ -1,0 +1,54 @@
+---
+  title: "Ford GoBike Data Collection & Cleaning"
+author: "Alec Lepe"
+date: "09/27/2018"
+output: 
+  html_document:
+  keep_md: true
+---
+### Load Libraries
+```{r Setup}
+#install.packages("data.table")
+#install.packages("readxl")
+library("data.table")
+library("readxl")
+library("ggplot2")
+```
+### Reproducibility: Session Info
+```{r aeessionInfo}
+sessionInfo()
+```
+### Load Data
+```{r LoadData}
+casedata=data.table::as.data.table(readxl::read_excel("~/MSDS-6306-Second-Case-Study/Data/CaseStudy2-data.xlsx"))
+save(casedata,file="~/MSDS-6306-Second-Case-Study/Data/CaseStudy2-data.RData")
+load("~/MSDS-6306-Second-Case-Study/Data/CaseStudy2-data.RData")
+dim(casedata)
+str(casedata)
+```
+### Detect and Delete Non-Relevant Data
+``` {r DeleteData}
+cns=c()
+for (cn in colnames(casedata)){
+  if(length(table(casedata[[cn]]))==1){
+    print(cn)
+    cns=append(cn,cns)
+  }
+}
+for (cn in cns){
+  print(paste(cn,names(table(casedata[[cn]])),table(casedata[[cn]])))
+  casedata=casedata[,!cn,with=F]
+}
+```
+Deleted: *Standard Hours*, *Over18*, and *EmplyoeeCount* where there is only one value.
+``` {r AttritionCount}
+barplot(table(casedata[["Attrition"]]), main="Attrition Count",col=c("Green","Red"))
+table(casedata[["Attrition"]])/nrow(casedata)
+```
+``` {r AttritionCount}
+barplot(table(casedata[casedata[["Attrition"]]=="Yes",][["Age"]]), main="Yes Attrition by Age",col=c("Red"))
+barplot(table(casedata[casedata[["Attrition"]]=="No",][["Age"]]), main="No Attrtiion by Age",col=c("Green"))
+
+```
+
+
