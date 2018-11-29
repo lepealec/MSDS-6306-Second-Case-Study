@@ -1,0 +1,66 @@
+---
+title: "MSDS Second Case Study"
+author: "Alec Lepe, Che Cobb"
+date: "11/28/2018"
+output: 
+  html_document:
+    fig_width: 6
+    fig_height: 4
+  keep_md: true
+---
+### Load Libraries
+```{r setup, include=FALSE, echo=FALSE}
+#install.packages("data.table")
+#install.packages("readxl")
+#install.packages("ggplot2")
+#install.packages("reshape")
+library("data.table")
+library("readxl")
+library("tidyverse")
+library("ggplot2")
+library("reshape")
+knitr::opts_chunk$set(fig.width = 10, fig.length=10, fig.asp = 1/3,  message=TRUE,echo=FALSE,cache=TRUE)
+fig.path = "~/MSDS-6306-Second-Case-Study/Figures"
+```
+### Reproducibility: Session Info
+```{r aeessionInfo}
+sessionInfo()
+```
+### Load Data
+```{r LoadData}
+casedata=data.table::as.data.table(readxl::read_excel("~/MSDS-6306-Second-Case-Study/Data/CaseStudy2-data.xlsx"))
+save(casedata,file="~/MSDS-6306-Second-Case-Study/Data/CaseStudy2-data.RData")
+load("~/MSDS-6306-Second-Case-Study/Data/CaseStudy2-data.RData")
+dim(casedata)
+str(casedata)
+```
+### Detect and Delete Non-Relevant Data
+``` {r DeleteData}
+cns=c()
+for (cn in colnames(casedata)){
+  if(length(table(casedata[[cn]]))==1){
+    print(cn)
+    cns=append(cn,cns)
+  }
+}
+for (cn in cns){
+  print(paste(cn,names(table(casedata[[cn]])),table(casedata[[cn]])))
+  casedata=casedata[,!cn,with=F]
+}
+```
+Deleted: *Standard Hours*, *Over18*, and *EmplyoeeCount* where there is only one value.
+``` {r AttritionCount}
+barplot(table(casedata[["Attrition"]]), main="Attrition Count",col=c("Green","Red"))
+table(casedata[["Attrition"]])/nrow(casedata)
+```
+### How does age relate to attrition?
+``` {r AttritionCountByAge,echo=T}
+ID="Age"
+yes=casedata[,sum(Attrition=="Yes"),ID]; colnames(yes)[2]="Yes"
+no=casedata[,sum(Attrition=="No"),ID];   colnames(no)[2]="No"
+temp=merge(yes,no,all=T)
+temp=melt(temp,id=ID)
+temp=as.data.frame(temp)
+colnames(temp)=c(ID,"Attrition","Count")
+temp %>% ggplot(aes(fill=Attrition,y=Count,x=eval(as.symbol(ID))))+geom_bar(stat="identity")+xlab(ID)
+```
