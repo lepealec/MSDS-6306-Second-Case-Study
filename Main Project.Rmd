@@ -16,10 +16,11 @@ output:
 #install.packages("reshape")
 library("data.table")
 library("readxl")
+library("tidyverse")
 library("ggplot2")
 library("reshape")
-knitr::opts_chunk$set(fig.width = 10, fig.length=10, fig.asp = 1/3,  message=TRUE,echo=FALSE)
-#knitr::opts_chunk$set(fig.width=8, fig.height=7)
+knitr::opts_chunk$set(fig.width = 10, fig.length=10, fig.asp = 1/3,  message=TRUE,echo=FALSE,cache=TRUE)
+fig.path = "~/MSDS-6306-Second-Case-Study/Figures"
 ```
 ### Reproducibility: Session Info
 ```{r aeessionInfo}
@@ -61,7 +62,7 @@ temp=merge(yes,no,all=T)
 temp=melt(temp,id=ID)
 temp=as.data.frame(temp)
 colnames(temp)=c(ID,"Attrition","Count")
-ggplot(temp,aes(fill=Attrition,y=Count,x=eval(as.symbol(ID))))+geom_bar(stat="identity")+xlab(ID)
+temp %>% ggplot(aes(fill=Attrition,y=Count,x=eval(as.symbol(ID))))+geom_bar(stat="identity")+xlab(ID)
 ```
 Here we can see that attrition is greatest between 29 and 35.
 ``` {r AttritionProportionByAge}
