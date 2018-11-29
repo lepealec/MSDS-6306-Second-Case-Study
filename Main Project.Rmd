@@ -1,7 +1,7 @@
 ---
-  title: "Ford GoBike Data Collection & Cleaning"
-author: "Alec Lepe"
-date: "09/27/2018"
+title: "MSDS Second Case Study"
+author: "Alec Lepe, Che Cobb"
+date: "11/28/2018"
 output: 
   html_document:
   keep_md: true
@@ -10,9 +10,12 @@ output:
 ```{r Setup}
 #install.packages("data.table")
 #install.packages("readxl")
+#install.packages("ggplot2")
+#install.packages("reshape")
 library("data.table")
 library("readxl")
 library("ggplot2")
+library("reshape")
 ```
 ### Reproducibility: Session Info
 ```{r aeessionInfo}
@@ -45,10 +48,154 @@ Deleted: *Standard Hours*, *Over18*, and *EmplyoeeCount* where there is only one
 barplot(table(casedata[["Attrition"]]), main="Attrition Count",col=c("Green","Red"))
 table(casedata[["Attrition"]])/nrow(casedata)
 ```
-``` {r AttritionCount}
-barplot(table(casedata[casedata[["Attrition"]]=="Yes",][["Age"]]), main="Yes Attrition by Age",col=c("Red"))
-barplot(table(casedata[casedata[["Attrition"]]=="No",][["Age"]]), main="No Attrtiion by Age",col=c("Green"))
-
+### How does age relate to attrition?
+``` {r AttritionCountByAge}
+ID="Age"
+yes=casedata[,sum(Attrition=="Yes"),ID]; colnames(yes)[2]="Yes"
+no=casedata[,sum(Attrition=="No"),ID];   colnames(no)[2]="No"
+temp=merge(yes,no,all=T)
+temp=melt(temp,id=ID)
+temp=as.data.frame(temp)
+colnames(temp)=c(ID,"Attrition","Count")
+ggplot(temp,aes(fill=Attrition,y=Count,x=eval(as.symbol(ID))))+geom_bar(stat="identity")+xlab(ID)
+```
+Here we can see that attrition is greatest between 29 and 35.
+``` {r AttritionProportionByAge}
+temp=merge(temp,as.data.table(temp)[,sum(Count),ID])
+colnames(temp)[ncol(temp)]="Total"
+temp[["Proportion"]]=temp[["Count"]]/temp[["Total"]]
+ggplot(temp,aes(fill=Attrition,y=Proportion,x=eval(as.symbol(ID))))+geom_bar(stat="identity")+xlab(ID)+ggtitle(paste(ID,"vs Attrition"))
+```
+Here we see that attrition is greater at earlier ages, with a noticeable peak at age 58.
+``` {r age58}
+temp[temp[["Age"]]==58,]
+```
+### How does business travel relate to attrition?
+``` {r AttritionCountByBusinessTravel}
+ID="BusinessTravel"
+yes=casedata[,sum(Attrition=="Yes"),ID]; colnames(yes)[2]="Yes"
+no=casedata[,sum(Attrition=="No"),ID];   colnames(no)[2]="No"
+temp=merge(yes,no,all=T)
+temp=melt(temp,id=ID)
+temp=as.data.frame(temp)
+colnames(temp)=c(ID,"Attrition","Count")
+temp=merge(temp,as.data.table(temp)[,sum(Count),ID])
+colnames(temp)[ncol(temp)]="Total"
+temp[["Proportion"]]=temp[["Count"]]/temp[["Total"]]
+ggplot(temp,aes(fill=Attrition,y=Proportion,x=eval(as.symbol(ID))))+geom_bar(stat="identity")+xlab(ID)+ggtitle(paste(ID,"vs Attrition"))
+```
+Here we can see that attrition, proportionally, is greatest for employees who travel frequently and the least for employees who do not travel.
+### Automatically detecting single predictors
+We can go on and on plotting individual predictors, but let's try to automate the process.
+This R code will go through every numeric variable and see if they can predict attrition.
+```{r determinebestvariables}
+tempcasedata=casedata
+tempcasedata[tempcasedata[["Attrition"]]=="Yes",][["Attrition"]]="1"
+tempcasedata[tempcasedata[["Attrition"]]=="No",][["Attrition"]]="0"
+mode(tempcasedata[["Attrition"]])="numeric"
+pmatrix=matrix(ncol=2,nrow=0)
+for (i in setdiff(colnames(tempcasedata),"Attrition")){
+  if (mode(tempcasedata[[i]])=='numeric'){
+  formula=paste0("Attrition~",i,sep="")
+  model=lm(formula,tempcasedata)
+  pmatrix=rbind(pmatrix,c(i,summary(model)$coefficients[8]))
+}
+}
+pmatrix=as.data.table(pmatrix[order(as.numeric(pmatrix[,2])),])
+colnames(pmatrix)=c("Variable","P-Value")
+```
+Here are the top 6 variables, based on low P-Values.
+``` {r variables}
+head(pmatrix)
+cat(head(pmatrix)[["Variable"]])
+```
+### Plotting Statistically Significant Data
+Excluding age as we previouslyu plotted that out.
+``` {r TotalWorkingYears}
+ID="TotalWorkingYears"
+yes=casedata[,sum(Attrition=="Yes"),ID]; colnames(yes)[2]="Yes"
+no=casedata[,sum(Attrition=="No"),ID];   colnames(no)[2]="No"
+temp=merge(yes,no,all=T)
+temp=melt(temp,id=ID)
+temp=as.data.frame(temp)
+colnames(temp)=c(ID,"Attrition","Count")
+temp=merge(temp,as.data.table(temp)[,sum(Count),ID])
+colnames(temp)[ncol(temp)]="Total"
+temp[["Proportion"]]=temp[["Count"]]/temp[["Total"]]
+ggplot(temp,aes(fill=Attrition,y=Proportion,x=eval(as.symbol(ID))))+geom_bar(stat="identity")+xlab(ID)+ggtitle(paste(ID,"vs Attrition"))
 ```
 
+Here we see that attrition generally decreases as total working years increases with an outlier at age 40.
+``` {r TotalWorkingYears40}
+temp[temp[["TotalWorkingYears"]]==40,]
+```
+``` {r JobLevel}
+ID="JobLevel"
+yes=casedata[,sum(Attrition=="Yes"),ID]; colnames(yes)[2]="Yes"
+no=casedata[,sum(Attrition=="No"),ID];   colnames(no)[2]="No"
+temp=merge(yes,no,all=T)
+temp=melt(temp,id=ID)
+temp=as.data.frame(temp)
+colnames(temp)=c(ID,"Attrition","Count")
+temp=merge(temp,as.data.table(temp)[,sum(Count),ID])
+colnames(temp)[ncol(temp)]="Total"
+temp[["Proportion"]]=temp[["Count"]]/temp[["Total"]]
+ggplot(temp,aes(fill=Attrition,y=Proportion,x=eval(as.symbol(ID))))+geom_bar(stat="identity")+xlab(ID)+ggtitle(paste(ID,"vs Attrition"))
+```
+
+Here we see attrition roughly vary between job level.
+``` {r YearsInCurrentRole}
+ID="YearsInCurrentRole"
+yes=casedata[,sum(Attrition=="Yes"),ID]; colnames(yes)[2]="Yes"
+no=casedata[,sum(Attrition=="No"),ID];   colnames(no)[2]="No"
+temp=merge(yes,no,all=T)
+temp=melt(temp,id=ID)
+temp=as.data.frame(temp)
+colnames(temp)=c(ID,"Attrition","Count")
+temp=merge(temp,as.data.table(temp)[,sum(Count),ID])
+colnames(temp)[ncol(temp)]="Total"
+temp[["Proportion"]]=temp[["Count"]]/temp[["Total"]]
+ggplot(temp,aes(fill=Attrition,y=Proportion,x=eval(as.symbol(ID))))+geom_bar(stat="identity")+xlab(ID)+ggtitle(paste(ID,"vs Attrition"))
+```
+
+Here we see attrition generally decrease as years in current role increases with seemingly an outlier at age 15.
+``` {r yearsincurrentrole15}
+temp[temp[["YearsInCurrentRole"]]==15,]
+```
+
+``` {r MonthlyIncome}
+ID="MonthlyIncome2"
+casedata[["MonthlyIncome2"]]=round(casedata[["MonthlyIncome"]]/1000)
+yes=casedata[,sum(Attrition=="Yes"),ID]; colnames(yes)[2]="Yes"
+no=casedata[,sum(Attrition=="No"),ID];   colnames(no)[2]="No"
+temp=merge(yes,no,all=T)
+temp=melt(temp,id=ID)
+temp=as.data.frame(temp)
+colnames(temp)=c(ID,"Attrition","Count")
+temp=merge(temp,as.data.table(temp)[,sum(Count),ID])
+colnames(temp)[ncol(temp)]="Total"
+temp[["Proportion"]]=temp[["Count"]]/temp[["Total"]]
+ggplot(temp,aes(fill=Attrition,y=Proportion,x=MonthlyIncome2))+geom_bar(stat="identity")+xlab("Rounded Monthly Income ($K)")+ggtitle("Rounded Monthly Income ($K) vs Attrition")
+```
+
+Here we see attrition generally decrease with increases in monthly income levels.
+``` {r YearsWithCurrManager}
+ID="YearsWithCurrManager"
+yes=casedata[,sum(Attrition=="Yes"),ID]; colnames(yes)[2]="Yes"
+no=casedata[,sum(Attrition=="No"),ID];   colnames(no)[2]="No"
+temp=merge(yes,no,all=T)
+temp=melt(temp,id=ID)
+temp=as.data.frame(temp)
+colnames(temp)=c(ID,"Attrition","Count")
+temp=merge(temp,as.data.table(temp)[,sum(Count),ID])
+colnames(temp)[ncol(temp)]="Total"
+temp[["Proportion"]]=temp[["Count"]]/temp[["Total"]]
+ggplot(temp,aes(fill=Attrition,y=Proportion,x=eval(as.symbol(ID))))+geom_bar(stat="identity")+xlab(ID)+ggtitle(paste(ID,"vs Attrition"))
+```
+
+Here we see attrition decreasing as years with current manager increases with an outlier at year 14 where we only have 5 total observations.
+``` {r 14}
+temp[temp[["YearsWithCurrManager"]]==14,]
+
+```
 
