@@ -38,39 +38,43 @@ sessionInfo()
 ```
 
 ```
-## R version 3.5.0 (2018-04-23)
-## Platform: x86_64-apple-darwin15.6.0 (64-bit)
-## Running under: macOS High Sierra 10.13.6
+## R version 3.5.1 (2018-07-02)
+## Platform: x86_64-w64-mingw32/x64 (64-bit)
+## Running under: Windows 10 x64 (build 17134)
 ## 
 ## Matrix products: default
-## BLAS: /Library/Frameworks/R.framework/Versions/3.5/Resources/lib/libRblas.0.dylib
-## LAPACK: /Library/Frameworks/R.framework/Versions/3.5/Resources/lib/libRlapack.dylib
 ## 
 ## locale:
-## [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+## [1] LC_COLLATE=English_United States.1252 
+## [2] LC_CTYPE=English_United States.1252   
+## [3] LC_MONETARY=English_United States.1252
+## [4] LC_NUMERIC=C                          
+## [5] LC_TIME=English_United States.1252    
 ## 
 ## attached base packages:
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] reshape_0.8.8     ggplot2_2.2.1     readxl_1.1.0      data.table_1.11.4
-## [5] pander_0.6.3     
+## [1] reshape_0.8.8     ggplot2_3.1.0     readxl_1.1.0      data.table_1.11.4
+## [5] pander_0.6.2     
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] Rcpp_1.0.0       knitr_1.20       magrittr_1.5     munsell_0.4.3   
-##  [5] colorspace_1.3-2 rlang_0.2.0      stringr_1.3.0    plyr_1.8.4      
-##  [9] tools_3.5.0      grid_3.5.0       gtable_0.2.0     htmltools_0.3.6 
-## [13] yaml_2.2.0       lazyeval_0.2.1   rprojroot_1.3-2  digest_0.6.18   
-## [17] tibble_1.4.2     evaluate_0.11    rmarkdown_1.10   stringi_1.2.2   
-## [21] pillar_1.2.2     compiler_3.5.0   cellranger_1.1.0 scales_0.5.0    
-## [25] backports_1.1.2
+##  [1] Rcpp_0.12.18     bindr_0.1.1      knitr_1.20       magrittr_1.5    
+##  [5] tidyselect_0.2.4 munsell_0.5.0    colorspace_1.3-2 R6_2.2.2        
+##  [9] rlang_0.3.0.1    dplyr_0.7.6      stringr_1.3.1    plyr_1.8.4      
+## [13] tools_3.5.1      grid_3.5.1       gtable_0.2.0     withr_2.1.2     
+## [17] htmltools_0.3.6  assertthat_0.2.0 yaml_2.2.0       lazyeval_0.2.1  
+## [21] rprojroot_1.3-2  digest_0.6.17    tibble_1.4.2     crayon_1.3.4    
+## [25] bindrcpp_0.2.2   purrr_0.2.5      glue_1.3.0       evaluate_0.11   
+## [29] rmarkdown_1.10   stringi_1.1.7    pillar_1.3.0     compiler_3.5.1  
+## [33] cellranger_1.1.0 scales_1.0.0     backports_1.1.2  pkgconfig_2.0.2
 ```
 ### Load Data
 
 ```r
-casedata=data.table::as.data.table(readxl::read_excel("~/MSDS-6306-Second-Case-Study/Data/CaseStudy2-data.xlsx"))
-save(casedata,file="~/MSDS-6306-Second-Case-Study/Data/CaseStudy2-data.RData")
-load("~/MSDS-6306-Second-Case-Study/Data/CaseStudy2-data.RData")
+casedata=data.table::as.data.table(readxl::read_excel("Data/CaseStudy2-data.xlsx"))
+save(casedata,file="Data/CaseStudy2-data.RData")
+load("Data/CaseStudy2-data.RData")
 dim(casedata)
 ```
 
@@ -121,6 +125,25 @@ str(casedata)
 ##  $ YearsWithCurrManager    : num  5 7 0 0 2 6 0 0 8 7 ...
 ##  - attr(*, ".internal.selfref")=<externalptr>
 ```
+
+```r
+library(corrplot)
+```
+
+```
+## corrplot 0.84 loaded
+```
+
+```r
+library(magrittr)
+numeric=casedata %>% dplyr::select(Age,DailyRate,DistanceFromHome,HourlyRate,MonthlyIncome,MonthlyRate,NumCompaniesWorked,PercentSalaryHike,YearsAtCompany,YearsInCurrentRole,YearsSinceLastPromotion,YearsWithCurrManager,TotalWorkingYears,TrainingTimesLastYear,StockOptionLevel)
+corrplot(cor(numeric),method="circle",type="upper")
+```
+
+![](MainProject_files/figure-html/unnamed-chunk-1-1.png)<!-- -->
+
+
+
 ### Detect and Delete Non-Relevant Data
 
 ```r
@@ -153,21 +176,50 @@ for (cn in cns){
 ```
 Deleted: *Standard Hours*, *Over18*, and *EmplyoeeCount* where there is only one value.
 
-```r
-barplot(table(casedata[["Attrition"]]), main="Attrition Count",col=c("Green","Red"))
-```
-
-![](MainProject_files/figure-html/AttritionCount-1.png)<!-- -->
 
 ```r
-table(casedata[["Attrition"]])/nrow(casedata)
+library(dplyr)
 ```
 
 ```
 ## 
-##        No       Yes 
-## 0.8387755 0.1612245
+## Attaching package: 'dplyr'
 ```
+
+```
+## The following object is masked from 'package:reshape':
+## 
+##     rename
+```
+
+```
+## The following objects are masked from 'package:data.table':
+## 
+##     between, first, last
+```
+
+```
+## The following objects are masked from 'package:stats':
+## 
+##     filter, lag
+```
+
+```
+## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union
+```
+
+```r
+library(scales)
+casedata %>%group_by(Attrition)%>%summarize(attrition_count=n())%>%ungroup()%>%
+  mutate(attrition_rate=round(attrition_count/sum(attrition_count),2))%>%ggplot(aes(x=reorder(Attrition,attrition_rate),y=attrition_rate,fill=Attrition)) + geom_bar(stat='identity',alpha=0.5) +
+   theme(axis.text.x=element_text(angle=0,vjust=0.5),legend.position='none',plot.title = element_text(size=12))+labs(title="Attrition Rate")+scale_y_continuous(labels=percent_format())+geom_text(aes(label=attrition_rate),vjust=0.1)
+```
+
+![](MainProject_files/figure-html/AttritionCount-1.png)<!-- -->
+
+
 ### How does age relate to attrition?
 
 ```r
@@ -287,7 +339,8 @@ ggplot(temp,aes(fill=Attrition,y=Proportion,x=eval(as.symbol(ID))))+geom_bar(sta
 
 ![](MainProject_files/figure-html/TotalWorkingYears-1.png)<!-- -->
 
-Here we see that attrition generally decreases as total working years increases with an outlier at age 40.
+**Here we see that attrition generally decreases as total working years increases with an outlier at age 40.**
+
 
 ```r
 temp[temp[["TotalWorkingYears"]]==40,]
@@ -315,7 +368,8 @@ ggplot(temp,aes(fill=Attrition,y=Proportion,x=eval(as.symbol(ID))))+geom_bar(sta
 
 ![](MainProject_files/figure-html/JobLevel-1.png)<!-- -->
 
-Here we see attrition roughly vary between job level.
+**Here we see attrition roughly vary between job level.**
+
 
 ```r
 ID="YearsInCurrentRole"
@@ -333,7 +387,10 @@ ggplot(temp,aes(fill=Attrition,y=Proportion,x=eval(as.symbol(ID))))+geom_bar(sta
 
 ![](MainProject_files/figure-html/YearsInCurrentRole-1.png)<!-- -->
 
-Here we see attrition generally decrease as years in current role increases with seemingly an outlier at age 15.
+**Here we see attrition generally decrease as years in current role increases with seemingly an outlier at year 15.**
+
+
+
 
 ```r
 temp[temp[["YearsInCurrentRole"]]==15,]
@@ -363,11 +420,10 @@ ggplot(temp,aes(fill=Attrition,y=Proportion,x=MonthlyIncome2))+geom_bar(stat="id
 
 ![](MainProject_files/figure-html/MonthlyIncome-1.png)<!-- -->
 
-```r
-casedata=casedata[,!"MonthlyIncome2",with=F]
-```
+**Here we see attrition generally decrease with increases in monthly income levels.**
 
-Here we see attrition generally decrease with increases in monthly income levels.
+
+
 
 ```r
 ID="YearsWithCurrManager"
@@ -385,7 +441,9 @@ ggplot(temp,aes(fill=Attrition,y=Proportion,x=eval(as.symbol(ID))))+geom_bar(sta
 
 ![](MainProject_files/figure-html/YearsWithCurrManager-1.png)<!-- -->
 
-Here we see attrition decreasing as years with current manager increases with an outlier at year 14 where we only have 5 total observations.
+**Here we see attrition decreasing as years with current manager increases with an outlier at year 14 where we only have 5 total observations.**
+
+
 
 ```r
 temp[temp[["YearsWithCurrManager"]]==14,]
@@ -399,6 +457,8 @@ temp[temp[["YearsWithCurrManager"]]==14,]
 
 ### Worst Indicators
 Now let's take a look at the worst indicators.
+
+
 
 ```r
 tail(pmatrix)
@@ -429,10 +489,7 @@ temp[["Proportion"]]=temp[["Count"]]/temp[["Total"]]
 ggplot(temp,aes(fill=Attrition,y=Proportion,x=eval(as.symbol(ID))))+geom_bar(stat="identity")+xlab(ID)+ggtitle(paste(ID,"vs Attrition"))
 ```
 
-![](MainProject_files/figure-html/Education-1.png)<!-- -->
-
-There is no significant trend between education levels and attrition.
-
+![](MainProject_files/figure-html/worst indicator plots-1.png)<!-- -->
 
 ```r
 ID="MonthlyRate"
@@ -448,10 +505,7 @@ temp[["Proportion"]]=temp[["Count"]]/temp[["Total"]]
 ggplot(temp,aes(fill=Attrition,y=Proportion,x=eval(as.symbol(ID))))+geom_bar(stat="identity")+xlab(ID)+ggtitle(paste(ID,"vs Attrition"))
 ```
 
-![](MainProject_files/figure-html/MonthlyRate-1.png)<!-- -->
-
-There is no significant trend between monthly rate and attrition.
-
+![](MainProject_files/figure-html/worst indicator plots-2.png)<!-- -->
 
 ```r
 ID="PercentSalaryHike"
@@ -467,11 +521,7 @@ temp[["Proportion"]]=temp[["Count"]]/temp[["Total"]]
 ggplot(temp,aes(fill=Attrition,y=Proportion,x=eval(as.symbol(ID))))+geom_bar(stat="identity")+xlab(ID)+ggtitle(paste(ID,"vs Attrition"))
 ```
 
-![](MainProject_files/figure-html/PercentSalaryHike-1.png)<!-- -->
-
-
-There is no significant trend between percent salary hike and attrition.
-
+![](MainProject_files/figure-html/worst indicator plots-3.png)<!-- -->
 
 ```r
 ID="EmployeeNumber"
@@ -487,9 +537,7 @@ temp[["Proportion"]]=temp[["Count"]]/temp[["Total"]]
 ggplot(temp,aes(fill=Attrition,y=Proportion,x=eval(as.symbol(ID))))+geom_bar(stat="identity")+xlab(ID)+ggtitle(paste(ID,"vs Attrition"))
 ```
 
-![](MainProject_files/figure-html/EmployeeNumber-1.png)<!-- -->
-
-There is no significant trend between percent salary hike and attrition.
+![](MainProject_files/figure-html/worst indicator plots-4.png)<!-- -->
 
 ```r
 ID="HourlyRate"
@@ -505,10 +553,7 @@ temp[["Proportion"]]=temp[["Count"]]/temp[["Total"]]
 ggplot(temp,aes(fill=Attrition,y=Proportion,x=eval(as.symbol(ID))))+geom_bar(stat="identity")+xlab(ID)+ggtitle(paste(ID,"vs Attrition"))
 ```
 
-![](MainProject_files/figure-html/HourlyRate-1.png)<!-- -->
-
-There is no significant trend between hourly rate and attrition.
-
+![](MainProject_files/figure-html/worst indicator plots-5.png)<!-- -->
 
 ```r
 ID="PerformanceRating"
@@ -524,9 +569,10 @@ temp[["Proportion"]]=temp[["Count"]]/temp[["Total"]]
 ggplot(temp,aes(fill=Attrition,y=Proportion,x=eval(as.symbol(ID))))+geom_bar(stat="identity")+xlab(ID)+ggtitle(paste(ID,"vs Attrition"))
 ```
 
-![](MainProject_files/figure-html/PerformanceRating-1.png)<!-- -->
+![](MainProject_files/figure-html/worst indicator plots-6.png)<!-- -->
 
-There is no significant trend between performance rating and attrition.
+**There is no significant trends in the worst rated indicators**
+
 
 ```r
 temp
@@ -567,51 +613,53 @@ sort(summary(model)$coefficients[,4])
 
 ```
 ##                      OverTimeYes          EnvironmentSatisfaction 
-##                     5.908202e-17                     3.413198e-09 
+##                     6.020049e-17                     2.987575e-09 
 ##               NumCompaniesWorked  BusinessTravelTravel_Frequently 
-##                     4.108708e-06                     1.492478e-05 
+##                     4.704626e-06                     1.538695e-05 
 ##                  JobSatisfaction                   JobInvolvement 
-##                     2.571812e-04                     3.260311e-04 
+##                     3.108828e-04                     3.259730e-04 
 ##                 DistanceFromHome     JobRoleLaboratory Technician 
-##                     4.995481e-04                     1.021871e-03 
+##                     4.696854e-04                     1.055045e-03 
 ##          YearsSinceLastPromotion      JobRoleSales Representative 
-##                     1.460431e-03                     4.294365e-03 
+##                     1.904508e-03                     4.417167e-03 
 ##                  WorkLifeBalance              MaritalStatusSingle 
-##                     4.452735e-03                     7.909400e-03 
+##                     5.315988e-03                     1.027557e-02 
 ##      BusinessTravelTravel_Rarely                              Age 
-##                     9.897987e-03                     1.444754e-02 
+##                     1.100990e-02                     1.507809e-02 
 ##            TrainingTimesLastYear        JobRoleResearch Scientist 
-##                     1.743542e-02                     2.103110e-02 
-##           JobRoleSales Executive         RelationshipSatisfaction 
-##                     2.732383e-02                     2.753659e-02 
-##                TotalWorkingYears             YearsWithCurrManager 
-##                     3.047105e-02                     5.401366e-02 
+##                     1.711564e-02                     2.092100e-02 
+##                TotalWorkingYears           JobRoleSales Executive 
+##                     2.793769e-02                     2.915360e-02 
+##         RelationshipSatisfaction             YearsWithCurrManager 
+##                     2.935008e-02                     5.706970e-02 
 ##               YearsInCurrentRole                       GenderMale 
-##                     1.221459e-01                     1.223007e-01 
+##                     1.148842e-01                     1.339454e-01 
 ##                PercentSalaryHike    JobRoleManufacturing Director 
-##                     1.451723e-01                     1.877361e-01 
+##                     1.379117e-01                     1.985108e-01 
 ##                   JobRoleManager                PerformanceRating 
-##                     2.102313e-01                     2.581151e-01 
-##                   YearsAtCompany                        DailyRate 
-##                     3.256700e-01                     3.693345e-01 
-##                    MonthlyIncome                      MonthlyRate 
-##                     3.980451e-01                     4.771747e-01 
-##              EducationFieldOther             MaritalStatusMarried 
-##                     4.834050e-01                     5.644232e-01 
-##                 StockOptionLevel                   EmployeeNumber 
-##                     5.833623e-01                     6.554116e-01 
+##                     2.310651e-01                     2.435390e-01 
+##                   YearsAtCompany                    MonthlyIncome 
+##                     3.217849e-01                     3.664730e-01 
+##                        DailyRate                   MonthlyIncome2 
+##                     3.834058e-01                     4.673636e-01 
+##              EducationFieldOther                      MonthlyRate 
+##                     5.158552e-01                     5.210519e-01 
+##                 StockOptionLevel             MaritalStatusMarried 
+##                     5.360777e-01                     5.842668e-01 
 ##         JobRoleResearch Director   EducationFieldTechnical Degree 
-##                     6.606005e-01                     6.814361e-01 
-##                        Education            EducationFieldMedical 
-##                     7.155440e-01                     8.524592e-01 
-##                       HourlyRate      EducationFieldLife Sciences 
-##                     8.898486e-01                     9.286166e-01 
-##          EducationFieldMarketing                         JobLevel 
-##                     9.667587e-01                     9.714704e-01 
-##           JobRoleHuman Resources DepartmentResearch & Development 
-##                     9.808673e-01                     9.838089e-01 
-##                      (Intercept)                  DepartmentSales 
-##                     9.839343e-01                     9.851146e-01
+##                     6.141268e-01                     6.632818e-01 
+##                   EmployeeNumber                        Education 
+##                     6.714958e-01                     7.012805e-01 
+##            EducationFieldMedical                       HourlyRate 
+##                     8.771082e-01                     9.423620e-01 
+##      EducationFieldLife Sciences          EducationFieldMarketing 
+##                     9.506883e-01                     9.528562e-01 
+##                         JobLevel           JobRoleHuman Resources 
+##                     9.714610e-01                     9.807688e-01 
+## DepartmentResearch & Development                      (Intercept) 
+##                     9.837100e-01                     9.837865e-01 
+##                  DepartmentSales 
+##                     9.849799e-01
 ```
 
 ###Select Statistically Significant Variables
@@ -624,45 +672,45 @@ coefs[coefs[,4]<0.05,]
 
 ```
 ##                                    Estimate Std. Error   z value
-## Age                             -0.04264563 0.01743528 -2.445939
-## BusinessTravelTravel_Frequently  2.40933995 0.55645581  4.329796
-## BusinessTravelTravel_Rarely      1.34029620 0.51962095  2.579373
-## DistanceFromHome                 0.04650455 0.01335954  3.480999
-## EnvironmentSatisfaction         -0.61076677 0.10333799 -5.910380
-## JobInvolvement                  -0.56721149 0.15783552 -3.593687
-## JobRoleLaboratory Technician     2.43584489 0.74163285  3.284435
-## JobRoleResearch Scientist        1.73930500 0.75378595  2.307426
-## JobRoleSales Executive           3.20831594 1.45379217  2.206860
-## JobRoleSales Representative      4.32737618 1.51535312  2.855688
-## JobSatisfaction                 -0.37006430 0.10124876 -3.655001
-## MaritalStatusSingle              1.09775914 0.41332646  2.655913
-## NumCompaniesWorked               0.22133346 0.04805531  4.605806
-## OverTimeYes                      2.05405471 0.24549350  8.367043
-## RelationshipSatisfaction        -0.22854340 0.10370301 -2.203826
-## TotalWorkingYears               -0.08023783 0.03707997 -2.163913
-## TrainingTimesLastYear           -0.22221440 0.09346971 -2.377395
-## WorkLifeBalance                 -0.44959198 0.15807496 -2.844170
-## YearsSinceLastPromotion          0.17503662 0.05500088  3.182433
+## Age                             -0.04239677 0.01744365 -2.430498
+## BusinessTravelTravel_Frequently  2.40667646 0.55670479  4.323075
+## BusinessTravelTravel_Rarely      1.32303103 0.52038984  2.542384
+## DistanceFromHome                 0.04681490 0.01338534  3.497475
+## EnvironmentSatisfaction         -0.61356238 0.10342776 -5.932280
+## JobInvolvement                  -0.56866708 0.15823851 -3.593734
+## JobRoleLaboratory Technician     2.42387283 0.74001861  3.275421
+## JobRoleResearch Scientist        1.73739809 0.75231347  2.309407
+## JobRoleSales Executive           3.16828997 1.45240910  2.181403
+## JobRoleSales Representative      4.30830537 1.51342585  2.846724
+## JobSatisfaction                 -0.36602895 0.10150388 -3.606059
+## MaritalStatusSingle              1.06671939 0.41564563  2.566416
+## NumCompaniesWorked               0.22019930 0.04810423  4.577546
+## OverTimeYes                      2.05693214 0.24590238  8.364832
+## RelationshipSatisfaction        -0.22613779 0.10379234 -2.178752
+## TotalWorkingYears               -0.08185978 0.03724013 -2.198160
+## TrainingTimesLastYear           -0.22328683 0.09365217 -2.384214
+## WorkLifeBalance                 -0.44100444 0.15822290 -2.787235
+## YearsSinceLastPromotion          0.17125831 0.05516040  3.104733
 ##                                     Pr(>|z|)
-## Age                             1.444754e-02
-## BusinessTravelTravel_Frequently 1.492478e-05
-## BusinessTravelTravel_Rarely     9.897987e-03
-## DistanceFromHome                4.995481e-04
-## EnvironmentSatisfaction         3.413198e-09
-## JobInvolvement                  3.260311e-04
-## JobRoleLaboratory Technician    1.021871e-03
-## JobRoleResearch Scientist       2.103110e-02
-## JobRoleSales Executive          2.732383e-02
-## JobRoleSales Representative     4.294365e-03
-## JobSatisfaction                 2.571812e-04
-## MaritalStatusSingle             7.909400e-03
-## NumCompaniesWorked              4.108708e-06
-## OverTimeYes                     5.908202e-17
-## RelationshipSatisfaction        2.753659e-02
-## TotalWorkingYears               3.047105e-02
-## TrainingTimesLastYear           1.743542e-02
-## WorkLifeBalance                 4.452735e-03
-## YearsSinceLastPromotion         1.460431e-03
+## Age                             1.507809e-02
+## BusinessTravelTravel_Frequently 1.538695e-05
+## BusinessTravelTravel_Rarely     1.100990e-02
+## DistanceFromHome                4.696854e-04
+## EnvironmentSatisfaction         2.987575e-09
+## JobInvolvement                  3.259730e-04
+## JobRoleLaboratory Technician    1.055045e-03
+## JobRoleResearch Scientist       2.092100e-02
+## JobRoleSales Executive          2.915360e-02
+## JobRoleSales Representative     4.417167e-03
+## JobSatisfaction                 3.108828e-04
+## MaritalStatusSingle             1.027557e-02
+## NumCompaniesWorked              4.704626e-06
+## OverTimeYes                     6.020049e-17
+## RelationshipSatisfaction        2.935008e-02
+## TotalWorkingYears               2.793769e-02
+## TrainingTimesLastYear           1.711564e-02
+## WorkLifeBalance                 5.315988e-03
+## YearsSinceLastPromotion         1.904508e-03
 ```
 
 ```r
@@ -880,7 +928,6 @@ TN=nrow(modelcomparison[modelcomparison[["Predicted"]]==0 & modelcomparison[["Ac
 FN=nrow(modelcomparison[modelcomparison[["Predicted"]]==0 & modelcomparison[["Actual"]]==1,])
 TP=nrow(modelcomparison[modelcomparison[["Predicted"]]==1 & modelcomparison[["Actual"]]==1,])
 FP=nrow(modelcomparison[modelcomparison[["Predicted"]]==1 & modelcomparison[["Actual"]]==0,])
-
 mat=matrix(ncol=2,nrow=2)
 mat[1,1]=TN
 mat[1,2]=FP
@@ -962,7 +1009,6 @@ TN=nrow(modelcomparison[modelcomparison[["Predicted"]]==0 & modelcomparison[["Ac
 FN=nrow(modelcomparison[modelcomparison[["Predicted"]]==0 & modelcomparison[["Actual"]]==1,])
 TP=nrow(modelcomparison[modelcomparison[["Predicted"]]==1 & modelcomparison[["Actual"]]==1,])
 FP=nrow(modelcomparison[modelcomparison[["Predicted"]]==1 & modelcomparison[["Actual"]]==0,])
-
 mat=matrix(ncol=2,nrow=2)
 mat[1,1]=TN
 mat[1,2]=FP
@@ -1025,4 +1071,4 @@ Based on a logistic model on certain variables, with statistical significance of
 
 3: NumCompaniesWorked 
 
-The logistic model also generated a **90% accuracy** on the training dataset and a **77% accuracy** on the test dataset.
+The logistic model also generated a **90% accuracy** on the training dataset and a **77% accuracy** on the test dataset

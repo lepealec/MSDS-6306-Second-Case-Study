@@ -25,14 +25,23 @@ sessionInfo()
 ```
 ### Load Data
 ```{r LoadData}
-casedata=data.table::as.data.table(readxl::read_excel("~/MSDS-6306-Second-Case-Study/Data/CaseStudy2-data.xlsx"))
-save(casedata,file="~/MSDS-6306-Second-Case-Study/Data/CaseStudy2-data.RData")
-load("~/MSDS-6306-Second-Case-Study/Data/CaseStudy2-data.RData")
+casedata=data.table::as.data.table(readxl::read_excel("Data/CaseStudy2-data.xlsx"))
+save(casedata,file="Data/CaseStudy2-data.RData")
+load("Data/CaseStudy2-data.RData")
 dim(casedata)
 str(casedata)
 ```
+```{r}
+library(corrplot)
+library(magrittr)
+numeric=casedata %>% dplyr::select(Age,DailyRate,DistanceFromHome,HourlyRate,MonthlyIncome,MonthlyRate,NumCompaniesWorked,PercentSalaryHike,YearsAtCompany,YearsInCurrentRole,YearsSinceLastPromotion,YearsWithCurrManager,TotalWorkingYears,TrainingTimesLastYear,StockOptionLevel)
+corrplot(cor(numeric),method="circle",type="upper")
+```
+
+
+
 ### Detect and Delete Non-Relevant Data
-``` {r DeleteData}
+```{r DeleteData}
 cns=c()
 for (cn in colnames(casedata)){
   if(length(table(casedata[[cn]]))==1){
@@ -46,12 +55,19 @@ for (cn in cns){
 }
 ```
 Deleted: *Standard Hours*, *Over18*, and *EmplyoeeCount* where there is only one value.
-``` {r AttritionCount}
-barplot(table(casedata[["Attrition"]]), main="Attrition Count",col=c("Green","Red"))
-table(casedata[["Attrition"]])/nrow(casedata)
+
+```{r AttritionCount}
+library(dplyr)
+library(scales)
+casedata %>%group_by(Attrition)%>%summarize(attrition_count=n())%>%ungroup()%>%
+  mutate(attrition_rate=round(attrition_count/sum(attrition_count),2))%>%ggplot(aes(x=reorder(Attrition,attrition_rate),y=attrition_rate,fill=Attrition)) + geom_bar(stat='identity',alpha=0.5) +
+   theme(axis.text.x=element_text(angle=0,vjust=0.5),legend.position='none',plot.title = element_text(size=12))+labs(title="Attrition Rate")+scale_y_continuous(labels=percent_format())+geom_text(aes(label=attrition_rate),vjust=0.1)
+
 ```
+
+
 ### How does age relate to attrition?
-``` {r AttritionCountByAge}
+```{r AttritionCountByAge}
 ID="Age"
 yes=casedata[,sum(Attrition=="Yes"),ID]; colnames(yes)[2]="Yes"
 no=casedata[,sum(Attrition=="No"),ID];   colnames(no)[2]="No"
@@ -63,7 +79,7 @@ ggplot(temp,aes(fill=Attrition,y=Count,x=eval(as.symbol(ID))))+geom_bar(stat="id
 ```
 
 Here we can see that attrition is greatest between 29 and 35.
-``` {r AttritionProportionByAge}
+```{r AttritionProportionByAge}
 temp=merge(temp,as.data.table(temp)[,sum(Count),ID])
 colnames(temp)[ncol(temp)]="Total"
 temp[["Proportion"]]=temp[["Count"]]/temp[["Total"]]
@@ -71,11 +87,11 @@ ggplot(temp,aes(fill=Attrition,y=Proportion,x=eval(as.symbol(ID))))+geom_bar(sta
 ```
 
 Here we see that attrition is greater at earlier ages, with a noticeable peak at age 58.
-``` {r age58}
+```{r age58}
 temp[temp[["Age"]]==58,]
 ```
 ### How does business travel relate to attrition?
-``` {r AttritionCountByBusinessTravel}
+```{r AttritionCountByBusinessTravel}
 ID="BusinessTravel"
 yes=casedata[,sum(Attrition=="Yes"),ID]; colnames(yes)[2]="Yes"
 no=casedata[,sum(Attrition=="No"),ID];   colnames(no)[2]="No"
@@ -111,13 +127,13 @@ pmatrix=as.data.table(pmatrix[order(as.numeric(pmatrix[,2])),])
 colnames(pmatrix)=c("Variable","P-Value")
 ```
 Here are the top 6 variables, based on low P-Values.
-``` {r variables}
+```{r variables}
 head(pmatrix)
 cat(head(pmatrix)[["Variable"]])
 ```
 ### Plotting Statistically Significant Data
 Excluding age as we previouslyu plotted that out.
-``` {r TotalWorkingYears}
+```{r TotalWorkingYears}
 ID="TotalWorkingYears"
 yes=casedata[,sum(Attrition=="Yes"),ID]; colnames(yes)[2]="Yes"
 no=casedata[,sum(Attrition=="No"),ID];   colnames(no)[2]="No"
@@ -131,8 +147,9 @@ temp[["Proportion"]]=temp[["Count"]]/temp[["Total"]]
 ggplot(temp,aes(fill=Attrition,y=Proportion,x=eval(as.symbol(ID))))+geom_bar(stat="identity")+xlab(ID)+ggtitle(paste(ID,"vs Attrition"))
 ```
 
-Here we see that attrition generally decreases as total working years increases with an outlier at age 40.
-``` {r TotalWorkingYears40}
+**Here we see that attrition generally decreases as total working years increases with an outlier at age 40.**
+
+```{r TotalWorkingYears40}
 temp[temp[["TotalWorkingYears"]]==40,]
 ```
 ``` {r JobLevel}
@@ -149,8 +166,9 @@ temp[["Proportion"]]=temp[["Count"]]/temp[["Total"]]
 ggplot(temp,aes(fill=Attrition,y=Proportion,x=eval(as.symbol(ID))))+geom_bar(stat="identity")+xlab(ID)+ggtitle(paste(ID,"vs Attrition"))
 ```
 
-Here we see attrition roughly vary between job level.
-``` {r YearsInCurrentRole}
+**Here we see attrition roughly vary between job level.**
+
+```{r YearsInCurrentRole}
 ID="YearsInCurrentRole"
 yes=casedata[,sum(Attrition=="Yes"),ID]; colnames(yes)[2]="Yes"
 no=casedata[,sum(Attrition=="No"),ID];   colnames(no)[2]="No"
@@ -164,12 +182,15 @@ temp[["Proportion"]]=temp[["Count"]]/temp[["Total"]]
 ggplot(temp,aes(fill=Attrition,y=Proportion,x=eval(as.symbol(ID))))+geom_bar(stat="identity")+xlab(ID)+ggtitle(paste(ID,"vs Attrition"))
 ```
 
-Here we see attrition generally decrease as years in current role increases with seemingly an outlier at age 15.
-``` {r yearsincurrentrole15}
+**Here we see attrition generally decrease as years in current role increases with seemingly an outlier at year 15.**
+
+
+
+```{r yearsincurrentrole15}
 temp[temp[["YearsInCurrentRole"]]==15,]
 ```
 
-``` {r MonthlyIncome}
+```{r MonthlyIncome}
 ID="MonthlyIncome2"
 casedata[["MonthlyIncome2"]]=round(casedata[["MonthlyIncome"]]/1000)
 yes=casedata[,sum(Attrition=="Yes"),ID]; colnames(yes)[2]="Yes"
@@ -182,11 +203,13 @@ temp=merge(temp,as.data.table(temp)[,sum(Count),ID])
 colnames(temp)[ncol(temp)]="Total"
 temp[["Proportion"]]=temp[["Count"]]/temp[["Total"]]
 ggplot(temp,aes(fill=Attrition,y=Proportion,x=MonthlyIncome2))+geom_bar(stat="identity")+xlab("Rounded Monthly Income ($K)")+ggtitle("Rounded Monthly Income ($K) vs Attrition")
-casedata=casedata[,!"MonthlyIncome2",with=F]
 ```
 
-Here we see attrition generally decrease with increases in monthly income levels.
-``` {r YearsWithCurrManager}
+**Here we see attrition generally decrease with increases in monthly income levels.**
+
+
+
+```{r YearsWithCurrManager}
 ID="YearsWithCurrManager"
 yes=casedata[,sum(Attrition=="Yes"),ID]; colnames(yes)[2]="Yes"
 no=casedata[,sum(Attrition=="No"),ID];   colnames(no)[2]="No"
@@ -200,18 +223,22 @@ temp[["Proportion"]]=temp[["Count"]]/temp[["Total"]]
 ggplot(temp,aes(fill=Attrition,y=Proportion,x=eval(as.symbol(ID))))+geom_bar(stat="identity")+xlab(ID)+ggtitle(paste(ID,"vs Attrition"))
 ```
 
-Here we see attrition decreasing as years with current manager increases with an outlier at year 14 where we only have 5 total observations.
-``` {r 14}
+**Here we see attrition decreasing as years with current manager increases with an outlier at year 14 where we only have 5 total observations.**
+
+
+```{r 14}
 temp[temp[["YearsWithCurrManager"]]==14,]
 ```
 
 ### Worst Indicators
 Now let's take a look at the worst indicators.
-``` {r WorstIndicators}
+
+
+```{r WorstIndicators}
 tail(pmatrix)
 ```
 
-``` {r Education}
+```{r worst indicator plots}
 ID="Education"
 yes=casedata[,sum(Attrition=="Yes"),ID]; colnames(yes)[2]="Yes"
 no=casedata[,sum(Attrition=="No"),ID];   colnames(no)[2]="No"
@@ -223,11 +250,7 @@ temp=merge(temp,as.data.table(temp)[,sum(Count),ID])
 colnames(temp)[ncol(temp)]="Total"
 temp[["Proportion"]]=temp[["Count"]]/temp[["Total"]]
 ggplot(temp,aes(fill=Attrition,y=Proportion,x=eval(as.symbol(ID))))+geom_bar(stat="identity")+xlab(ID)+ggtitle(paste(ID,"vs Attrition"))
-```
 
-There is no significant trend between education levels and attrition.
-
-``` {r MonthlyRate}
 ID="MonthlyRate"
 yes=casedata[,sum(Attrition=="Yes"),ID]; colnames(yes)[2]="Yes"
 no=casedata[,sum(Attrition=="No"),ID];   colnames(no)[2]="No"
@@ -239,11 +262,7 @@ temp=merge(temp,as.data.table(temp)[,sum(Count),ID])
 colnames(temp)[ncol(temp)]="Total"
 temp[["Proportion"]]=temp[["Count"]]/temp[["Total"]]
 ggplot(temp,aes(fill=Attrition,y=Proportion,x=eval(as.symbol(ID))))+geom_bar(stat="identity")+xlab(ID)+ggtitle(paste(ID,"vs Attrition"))
-```
 
-There is no significant trend between monthly rate and attrition.
-
-``` {r PercentSalaryHike}
 ID="PercentSalaryHike"
 yes=casedata[,sum(Attrition=="Yes"),ID]; colnames(yes)[2]="Yes"
 no=casedata[,sum(Attrition=="No"),ID];   colnames(no)[2]="No"
@@ -255,12 +274,7 @@ temp=merge(temp,as.data.table(temp)[,sum(Count),ID])
 colnames(temp)[ncol(temp)]="Total"
 temp[["Proportion"]]=temp[["Count"]]/temp[["Total"]]
 ggplot(temp,aes(fill=Attrition,y=Proportion,x=eval(as.symbol(ID))))+geom_bar(stat="identity")+xlab(ID)+ggtitle(paste(ID,"vs Attrition"))
-```
 
-
-There is no significant trend between percent salary hike and attrition.
-
-``` {r EmployeeNumber}
 ID="EmployeeNumber"
 yes=casedata[,sum(Attrition=="Yes"),ID]; colnames(yes)[2]="Yes"
 no=casedata[,sum(Attrition=="No"),ID];   colnames(no)[2]="No"
@@ -272,10 +286,7 @@ temp=merge(temp,as.data.table(temp)[,sum(Count),ID])
 colnames(temp)[ncol(temp)]="Total"
 temp[["Proportion"]]=temp[["Count"]]/temp[["Total"]]
 ggplot(temp,aes(fill=Attrition,y=Proportion,x=eval(as.symbol(ID))))+geom_bar(stat="identity")+xlab(ID)+ggtitle(paste(ID,"vs Attrition"))
-```
 
-There is no significant trend between percent salary hike and attrition.
-``` {r HourlyRate}
 ID="HourlyRate"
 yes=casedata[,sum(Attrition=="Yes"),ID]; colnames(yes)[2]="Yes"
 no=casedata[,sum(Attrition=="No"),ID];   colnames(no)[2]="No"
@@ -287,11 +298,7 @@ temp=merge(temp,as.data.table(temp)[,sum(Count),ID])
 colnames(temp)[ncol(temp)]="Total"
 temp[["Proportion"]]=temp[["Count"]]/temp[["Total"]]
 ggplot(temp,aes(fill=Attrition,y=Proportion,x=eval(as.symbol(ID))))+geom_bar(stat="identity")+xlab(ID)+ggtitle(paste(ID,"vs Attrition"))
-```
 
-There is no significant trend between hourly rate and attrition.
-
-``` {r PerformanceRating}
 ID="PerformanceRating"
 yes=casedata[,sum(Attrition=="Yes"),ID]; colnames(yes)[2]="Yes"
 no=casedata[,sum(Attrition=="No"),ID];   colnames(no)[2]="No"
@@ -305,12 +312,13 @@ temp[["Proportion"]]=temp[["Count"]]/temp[["Total"]]
 ggplot(temp,aes(fill=Attrition,y=Proportion,x=eval(as.symbol(ID))))+geom_bar(stat="identity")+xlab(ID)+ggtitle(paste(ID,"vs Attrition"))
 ```
 
-There is no significant trend between performance rating and attrition.
+**There is no significant trends in the worst rated indicators**
+
 ``` {r perfomancetempdb}
 temp
 ```
 ###Prep Data for logistic modeling
-``` {r prepdata}
+```{r prepdata}
 cns=setdiff(colnames(casedata),"Attrition")
 for (cn in cns){
   if (mode(casedata[[cn]])!="numeric"){
@@ -322,7 +330,7 @@ casedata[casedata[["Attrition"]]=="No",][["Attrition"]]="0"
 mode(casedata[["Attrition"]])="numeric"
 ```
 ###Select test data set, 70% of given data.
-``` {r createtesttraindata}
+```{r createtesttraindata}
 ### Create test data with 70% of the inital data set.
 smp<-floor(0.7*nrow(casedata))
 set.seed(1337)
@@ -331,11 +339,11 @@ train <- casedata[ind,]
 test <- casedata[-ind,]
 model <- glm(Attrition ~ ., family = 'binomial', data = train)
 sort(summary(model)$coefficients[,4])
-````
+```
 
 ###Select Statistically Significant Variables
 alpha = 0.05
-``` {r selectvariables}
+```{r selectvariables}
 coefs=summary(model)$coefficients
 coefs[coefs[,4]<0.05,]
 variables=rownames(coefs[coefs[,4]<0.05,])
@@ -364,24 +372,22 @@ glm(formula,family = 'binomial', data = train)
 ```
 
 ###Run New Linear Model
-``` {r newmodel}
+```{r newmodel}
 newmodel <- glm(formula, family = 'binomial', data = train)
 pander(newmodel)
 sort(summary(newmodel)$coefficients[,4])
 ```
 
 ###Model Evaluation: Training Data Set
-``` {r trainpredmodel}
+```{r trainpredmodel}
 predmodel=round(predict(newmodel,train,type='response'),digits=0)
 modelcomparison= as.data.table(cbind(predmodel,train$Attrition,train$EmployeeNumber))
 colnames(modelcomparison)=c("Predicted","Actual","EmployeeNumber")
 modelcomparison
-
 TN=nrow(modelcomparison[modelcomparison[["Predicted"]]==0 & modelcomparison[["Actual"]]==0,])
 FN=nrow(modelcomparison[modelcomparison[["Predicted"]]==0 & modelcomparison[["Actual"]]==1,])
 TP=nrow(modelcomparison[modelcomparison[["Predicted"]]==1 & modelcomparison[["Actual"]]==1,])
 FP=nrow(modelcomparison[modelcomparison[["Predicted"]]==1 & modelcomparison[["Actual"]]==0,])
-
 mat=matrix(ncol=2,nrow=2)
 mat[1,1]=TN
 mat[1,2]=FP
@@ -398,17 +404,15 @@ RelTrainResults
 cat("Total Training Dataset Accuracy: ",(TP+TN)/sum(TrainResults))
 ```
 ###Model Evaluation: Test Data Set
-``` {r testpredmodel}
+```{r testpredmodel}
 predmodel=round(predict(newmodel,test,type='response'),digits=0)
 modelcomparison= as.data.table(cbind(predmodel,train$Attrition,train$EmployeeNumber))
 colnames(modelcomparison)=c("Predicted","Actual","EmployeeNumber")
 modelcomparison
-
 TN=nrow(modelcomparison[modelcomparison[["Predicted"]]==0 & modelcomparison[["Actual"]]==0,])
 FN=nrow(modelcomparison[modelcomparison[["Predicted"]]==0 & modelcomparison[["Actual"]]==1,])
 TP=nrow(modelcomparison[modelcomparison[["Predicted"]]==1 & modelcomparison[["Actual"]]==1,])
 FP=nrow(modelcomparison[modelcomparison[["Predicted"]]==1 & modelcomparison[["Actual"]]==0,])
-
 mat=matrix(ncol=2,nrow=2)
 mat[1,1]=TN
 mat[1,2]=FP
@@ -442,4 +446,4 @@ Based on a logistic model on certain variables, with statistical significance of
 
 3: NumCompaniesWorked 
 
-The logistic model also generated a **90% accuracy** on the training dataset and a **77% accuracy** on the test dataset.
+The logistic model also generated a **90% accuracy** on the training dataset and a **77% accuracy** on the test dataset
