@@ -489,7 +489,7 @@ temp[["Proportion"]]=temp[["Count"]]/temp[["Total"]]
 ggplot(temp,aes(fill=Attrition,y=Proportion,x=eval(as.symbol(ID))))+geom_bar(stat="identity")+xlab(ID)+ggtitle(paste(ID,"vs Attrition"))
 ```
 
-![](MainProject_files/figure-html/worst indicator plots-1.png)<!-- -->
+![](MainProject_files/figure-html/worstindicatorplots-1.png)<!-- -->
 
 ```r
 ID="MonthlyRate"
@@ -505,7 +505,7 @@ temp[["Proportion"]]=temp[["Count"]]/temp[["Total"]]
 ggplot(temp,aes(fill=Attrition,y=Proportion,x=eval(as.symbol(ID))))+geom_bar(stat="identity")+xlab(ID)+ggtitle(paste(ID,"vs Attrition"))
 ```
 
-![](MainProject_files/figure-html/worst indicator plots-2.png)<!-- -->
+![](MainProject_files/figure-html/worstindicatorplots-2.png)<!-- -->
 
 ```r
 ID="PercentSalaryHike"
@@ -521,7 +521,7 @@ temp[["Proportion"]]=temp[["Count"]]/temp[["Total"]]
 ggplot(temp,aes(fill=Attrition,y=Proportion,x=eval(as.symbol(ID))))+geom_bar(stat="identity")+xlab(ID)+ggtitle(paste(ID,"vs Attrition"))
 ```
 
-![](MainProject_files/figure-html/worst indicator plots-3.png)<!-- -->
+![](MainProject_files/figure-html/worstindicatorplots-3.png)<!-- -->
 
 ```r
 ID="EmployeeNumber"
@@ -537,7 +537,7 @@ temp[["Proportion"]]=temp[["Count"]]/temp[["Total"]]
 ggplot(temp,aes(fill=Attrition,y=Proportion,x=eval(as.symbol(ID))))+geom_bar(stat="identity")+xlab(ID)+ggtitle(paste(ID,"vs Attrition"))
 ```
 
-![](MainProject_files/figure-html/worst indicator plots-4.png)<!-- -->
+![](MainProject_files/figure-html/worstindicatorplots-4.png)<!-- -->
 
 ```r
 ID="HourlyRate"
@@ -553,7 +553,7 @@ temp[["Proportion"]]=temp[["Count"]]/temp[["Total"]]
 ggplot(temp,aes(fill=Attrition,y=Proportion,x=eval(as.symbol(ID))))+geom_bar(stat="identity")+xlab(ID)+ggtitle(paste(ID,"vs Attrition"))
 ```
 
-![](MainProject_files/figure-html/worst indicator plots-5.png)<!-- -->
+![](MainProject_files/figure-html/worstindicatorplots-5.png)<!-- -->
 
 ```r
 ID="PerformanceRating"
@@ -569,7 +569,7 @@ temp[["Proportion"]]=temp[["Count"]]/temp[["Total"]]
 ggplot(temp,aes(fill=Attrition,y=Proportion,x=eval(as.symbol(ID))))+geom_bar(stat="identity")+xlab(ID)+ggtitle(paste(ID,"vs Attrition"))
 ```
 
-![](MainProject_files/figure-html/worst indicator plots-6.png)<!-- -->
+![](MainProject_files/figure-html/worstindicatorplots-6.png)<!-- -->
 
 **There is no significant trends in the worst rated indicators**
 

@@ -238,7 +238,7 @@ Now let's take a look at the worst indicators.
 tail(pmatrix)
 ```
 
-```{r worst indicator plots}
+```{r worstindicatorplots}
 ID="Education"
 yes=casedata[,sum(Attrition=="Yes"),ID]; colnames(yes)[2]="Yes"
 no=casedata[,sum(Attrition=="No"),ID];   colnames(no)[2]="No"
