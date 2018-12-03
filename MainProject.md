@@ -38,32 +38,36 @@ sessionInfo()
 ```
 
 ```
-## R version 3.5.0 (2018-04-23)
-## Platform: x86_64-apple-darwin15.6.0 (64-bit)
-## Running under: macOS High Sierra 10.13.6
+## R version 3.5.1 (2018-07-02)
+## Platform: x86_64-w64-mingw32/x64 (64-bit)
+## Running under: Windows 10 x64 (build 17134)
 ## 
 ## Matrix products: default
-## BLAS: /Library/Frameworks/R.framework/Versions/3.5/Resources/lib/libRblas.0.dylib
-## LAPACK: /Library/Frameworks/R.framework/Versions/3.5/Resources/lib/libRlapack.dylib
 ## 
 ## locale:
-## [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+## [1] LC_COLLATE=English_United States.1252 
+## [2] LC_CTYPE=English_United States.1252   
+## [3] LC_MONETARY=English_United States.1252
+## [4] LC_NUMERIC=C                          
+## [5] LC_TIME=English_United States.1252    
 ## 
 ## attached base packages:
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] reshape_0.8.8     ggplot2_2.2.1     readxl_1.1.0      data.table_1.11.4
-## [5] pander_0.6.3     
+## [1] reshape_0.8.8     ggplot2_3.1.0     readxl_1.1.0      data.table_1.11.4
+## [5] pander_0.6.2     
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] Rcpp_1.0.0       knitr_1.20       magrittr_1.5     munsell_0.4.3   
-##  [5] colorspace_1.3-2 rlang_0.2.0      stringr_1.3.0    plyr_1.8.4      
-##  [9] tools_3.5.0      grid_3.5.0       gtable_0.2.0     htmltools_0.3.6 
-## [13] yaml_2.2.0       lazyeval_0.2.1   rprojroot_1.3-2  digest_0.6.18   
-## [17] tibble_1.4.2     evaluate_0.11    rmarkdown_1.10   stringi_1.2.2   
-## [21] pillar_1.2.2     compiler_3.5.0   cellranger_1.1.0 scales_0.5.0    
-## [25] backports_1.1.2
+##  [1] Rcpp_0.12.18     bindr_0.1.1      knitr_1.20       magrittr_1.5    
+##  [5] tidyselect_0.2.4 munsell_0.5.0    colorspace_1.3-2 R6_2.2.2        
+##  [9] rlang_0.3.0.1    dplyr_0.7.6      stringr_1.3.1    plyr_1.8.4      
+## [13] tools_3.5.1      grid_3.5.1       gtable_0.2.0     withr_2.1.2     
+## [17] htmltools_0.3.6  assertthat_0.2.0 yaml_2.2.0       lazyeval_0.2.1  
+## [21] rprojroot_1.3-2  digest_0.6.17    tibble_1.4.2     crayon_1.3.4    
+## [25] bindrcpp_0.2.2   purrr_0.2.5      glue_1.3.0       evaluate_0.11   
+## [29] rmarkdown_1.10   stringi_1.1.7    pillar_1.3.0     compiler_3.5.1  
+## [33] cellranger_1.1.0 scales_1.0.0     backports_1.1.2  pkgconfig_2.0.2
 ```
 ### Load Data
 
@@ -178,10 +182,6 @@ library(dplyr)
 ```
 
 ```
-## Warning: package 'dplyr' was built under R version 3.5.1
-```
-
-```
 ## 
 ## Attaching package: 'dplyr'
 ```
@@ -235,7 +235,7 @@ ggplot(temp,aes(fill=Attrition,y=Count,x=eval(as.symbol(ID))))+geom_bar(stat="id
 
 ![](MainProject_files/figure-html/AttritionCountByAge-1.png)<!-- -->
 
-Here we can see that attrition is greatest between 29 and 35.
+Here we can see that attrition is greatest between 28 and 35.
 
 ```r
 temp=merge(temp,as.data.table(temp)[,sum(Count),ID])
@@ -339,7 +339,7 @@ ggplot(temp,aes(fill=Attrition,y=Proportion,x=eval(as.symbol(ID))))+geom_bar(sta
 
 ![](MainProject_files/figure-html/TotalWorkingYears-1.png)<!-- -->
 
-**Here we see that attrition generally decreases as total working years increases with an outlier at age 40.**
+**We see that attrition generally decreases as total working years increases with an outlier at age 40.**
 
 
 ```r
@@ -368,7 +368,7 @@ ggplot(temp,aes(fill=Attrition,y=Proportion,x=eval(as.symbol(ID))))+geom_bar(sta
 
 ![](MainProject_files/figure-html/JobLevel-1.png)<!-- -->
 
-**Here we see attrition roughly vary between job level.**
+**Job level varies with attrition**
 
 
 ```r
@@ -387,7 +387,7 @@ ggplot(temp,aes(fill=Attrition,y=Proportion,x=eval(as.symbol(ID))))+geom_bar(sta
 
 ![](MainProject_files/figure-html/YearsInCurrentRole-1.png)<!-- -->
 
-**Here we see attrition generally decrease as years in current role increases with seemingly an outlier at year 15.**
+**The longer a person is in their current role the longer they stay usually.**
 
 
 
@@ -420,7 +420,7 @@ ggplot(temp,aes(fill=Attrition,y=Proportion,x=MonthlyIncome2))+geom_bar(stat="id
 
 ![](MainProject_files/figure-html/MonthlyIncome-1.png)<!-- -->
 
-**Here we see attrition generally decrease with increases in monthly income levels.**
+**Attrition generally decreases when monthly income increases.**
 
 
 
@@ -441,7 +441,7 @@ ggplot(temp,aes(fill=Attrition,y=Proportion,x=eval(as.symbol(ID))))+geom_bar(sta
 
 ![](MainProject_files/figure-html/YearsWithCurrManager-1.png)<!-- -->
 
-**Here we see attrition decreasing as years with current manager increases with an outlier at year 14 where we only have 5 total observations.**
+**The longer your usually with your current manager attrition with an outlier at year 14 where there was only have 5 total observations.**
 
 
 

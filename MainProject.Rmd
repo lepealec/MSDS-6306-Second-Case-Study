@@ -78,7 +78,7 @@ colnames(temp)=c(ID,"Attrition","Count")
 ggplot(temp,aes(fill=Attrition,y=Count,x=eval(as.symbol(ID))))+geom_bar(stat="identity")+xlab(ID)
 ```
 
-Here we can see that attrition is greatest between 29 and 35.
+Here we can see that attrition is greatest between 28 and 35.
 ```{r AttritionProportionByAge}
 temp=merge(temp,as.data.table(temp)[,sum(Count),ID])
 colnames(temp)[ncol(temp)]="Total"
@@ -147,7 +147,7 @@ temp[["Proportion"]]=temp[["Count"]]/temp[["Total"]]
 ggplot(temp,aes(fill=Attrition,y=Proportion,x=eval(as.symbol(ID))))+geom_bar(stat="identity")+xlab(ID)+ggtitle(paste(ID,"vs Attrition"))
 ```
 
-**Here we see that attrition generally decreases as total working years increases with an outlier at age 40.**
+**We see that attrition generally decreases as total working years increases with an outlier at age 40.**
 
 ```{r TotalWorkingYears40}
 temp[temp[["TotalWorkingYears"]]==40,]
@@ -166,7 +166,7 @@ temp[["Proportion"]]=temp[["Count"]]/temp[["Total"]]
 ggplot(temp,aes(fill=Attrition,y=Proportion,x=eval(as.symbol(ID))))+geom_bar(stat="identity")+xlab(ID)+ggtitle(paste(ID,"vs Attrition"))
 ```
 
-**Here we see attrition roughly vary between job level.**
+**Job level varies with attrition**
 
 ```{r YearsInCurrentRole}
 ID="YearsInCurrentRole"
@@ -182,7 +182,7 @@ temp[["Proportion"]]=temp[["Count"]]/temp[["Total"]]
 ggplot(temp,aes(fill=Attrition,y=Proportion,x=eval(as.symbol(ID))))+geom_bar(stat="identity")+xlab(ID)+ggtitle(paste(ID,"vs Attrition"))
 ```
 
-**Here we see attrition generally decrease as years in current role increases with seemingly an outlier at year 15.**
+**The longer a person is in their current role the longer they stay usually.**
 
 
 
@@ -205,7 +205,7 @@ temp[["Proportion"]]=temp[["Count"]]/temp[["Total"]]
 ggplot(temp,aes(fill=Attrition,y=Proportion,x=MonthlyIncome2))+geom_bar(stat="identity")+xlab("Rounded Monthly Income ($K)")+ggtitle("Rounded Monthly Income ($K) vs Attrition")
 ```
 
-**Here we see attrition generally decrease with increases in monthly income levels.**
+**Attrition generally decreases when monthly income increases.**
 
 
 
@@ -223,7 +223,7 @@ temp[["Proportion"]]=temp[["Count"]]/temp[["Total"]]
 ggplot(temp,aes(fill=Attrition,y=Proportion,x=eval(as.symbol(ID))))+geom_bar(stat="identity")+xlab(ID)+ggtitle(paste(ID,"vs Attrition"))
 ```
 
-**Here we see attrition decreasing as years with current manager increases with an outlier at year 14 where we only have 5 total observations.**
+**The longer your usually with your current manager attrition with an outlier at year 14 where there was only have 5 total observations.**
 
 
 ```{r 14}
